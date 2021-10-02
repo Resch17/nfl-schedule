@@ -99,13 +99,13 @@ export default defineComponent({
                 position > this.touchStart &&
                 position - this.touchStart > 200
             ) {
-                this.changeWeek('up');
+                this.changeWeek('down');
             }
             if (
                 position < this.touchStart &&
                 this.touchStart - position > 200
             ) {
-                this.changeWeek('down');
+                this.changeWeek('up');
             }
         },
         changeWeek(upOrDown: string) {
