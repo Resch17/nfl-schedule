@@ -160,7 +160,6 @@ export default defineComponent({
             });
             this.games = transformedGames;
             this.week = apiData.week.number;
-            console.log(transformedGames);
         },
         async refreshList(selectedWeek: number) {
             if (
@@ -242,5 +241,9 @@ a {
 }
 .loser {
     border: 2px solid red;
+}
+.print {
+  margin-bottom: 0.5em;
+  padding-bottom: 0.5em;
 }
 </style>

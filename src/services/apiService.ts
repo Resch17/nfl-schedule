@@ -9,7 +9,6 @@ const apiClient = axios.create({
 class ApiService {
     async getAllGames(week: number) {
         const response = await apiClient.get(`/scoreboard?week=${week}`);
-        console.log(response.data);
         return response.data;
     }
 
