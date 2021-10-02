@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl';
+const apiUrl = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl';
 
 const apiClient = axios.create({
     baseURL: apiUrl,
