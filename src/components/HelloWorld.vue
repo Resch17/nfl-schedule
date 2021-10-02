@@ -1,61 +1,67 @@
 <template>
-    <div class="print" v-if="showPrint">
-        <div v-for="game in games" :key="game.id">
-            {{
-                `${game.awayTeam.name || game.awayTeam.location} @ ${game
-                    .homeTeam.name || game.homeTeam.location}`
-            }}
+    <div
+        class="swipe-container"
+        @touchstart="setTouchStart"
+        @touchend="touchEnd"
+    >
+        <div class="print" v-if="showPrint">
+            <div v-for="game in games" :key="game.id">
+                {{
+                    `${game.awayTeam.name || game.awayTeam.location} @ ${game
+                        .homeTeam.name || game.homeTeam.location}`
+                }}
+            </div>
         </div>
-    </div>
 
-    <label for="showPrint">Show printable</label>
-    <input
-        type="checkbox"
-        name="showPrint"
-        id="showPrint"
-        v-model="showPrint"
-    />
-    <div class="hello">
-        <label for="logosCheck">Logos on/off</label>
+        <label for="showPrint">Show printable</label>
         <input
             type="checkbox"
-            name="logosCheck"
-            id="logosCheck"
-            v-model="logosCheck"
+            name="showPrint"
+            id="showPrint"
+            v-model="showPrint"
         />
-        <div class="week-container">
-            <i
-                class="fas fa-arrow-alt-circle-left fa-2x"
-                @click="changeWeek('down')"
-            ></i>
-            <h1>Week {{ week }}</h1>
-            <i
-                class="fas fa-arrow-alt-circle-right fa-2x"
-                @click="changeWeek('up')"
-            ></i>
-        </div>
-        <main>
-            <div v-for="game in games" :key="game.id" class="game">
-                <div class="date">{{ game.date }}</div>
-                <div class="teams">
-                    <div class="away team" :class="teamStyle(game, 'away')">
-                        <team-card
-                            :game="game"
-                            homeAway="away"
-                            :logosCheck="logosCheck"
-                        ></team-card>
-                    </div>
-                    <div class="at">{{ ' @ ' }}</div>
-                    <div class="home team" :class="teamStyle(game, 'home')">
-                        <team-card
-                            :game="game"
-                            homeAway="home"
-                            :logosCheck="logosCheck"
-                        ></team-card>
+        <div class="hello">
+            <label for="logosCheck">Logos on/off</label>
+            <input
+                type="checkbox"
+                name="logosCheck"
+                id="logosCheck"
+                v-model="logosCheck"
+            />
+            <div class="week-container">
+                <i
+                    class="fas fa-arrow-alt-circle-left fa-2x"
+                    @click="changeWeek('down')"
+                ></i>
+                <h1>Week {{ week }}</h1>
+                <i
+                    class="fas fa-arrow-alt-circle-right fa-2x"
+                    @click="changeWeek('up')"
+                ></i>
+            </div>
+            <main>
+                <div v-for="game in games" :key="game.id" class="game">
+                    <div class="date">{{ game.date }}</div>
+                    <div class="teams">
+                        <div class="away team" :class="teamStyle(game, 'away')">
+                            <team-card
+                                :game="game"
+                                homeAway="away"
+                                :logosCheck="logosCheck"
+                            ></team-card>
+                        </div>
+                        <div class="at">{{ ' @ ' }}</div>
+                        <div class="home team" :class="teamStyle(game, 'home')">
+                            <team-card
+                                :game="game"
+                                homeAway="home"
+                                :logosCheck="logosCheck"
+                            ></team-card>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 </template>
 
@@ -79,9 +85,29 @@ export default defineComponent({
             weekSelect: 4,
             logosCheck: true,
             showPrint: false,
+            touchStart: 0,
         };
     },
     methods: {
+        setTouchStart(evt) {
+            this.touchStart = 0;
+            this.touchStart = evt.changedTouches[0].clientX;
+        },
+        touchEnd(evt) {
+            const position = evt.changedTouches[0].clientX;
+            if (
+                position > this.touchStart &&
+                position - this.touchStart > 200
+            ) {
+                this.changeWeek('up');
+            }
+            if (
+                position < this.touchStart &&
+                this.touchStart - position > 200
+            ) {
+                this.changeWeek('down');
+            }
+        },
         changeWeek(upOrDown: string) {
             switch (upOrDown) {
                 case 'up':
@@ -130,7 +156,7 @@ export default defineComponent({
                         weekday: 'long',
                         month: 'long',
                         day: 'numeric',
-                        year: 'numeric'
+                        year: 'numeric',
                     })} | ${gameDate.toLocaleTimeString('en-US', {
                         timeZone: 'America/Chicago',
                         timeZoneName: 'short',
@@ -180,7 +206,6 @@ export default defineComponent({
         const weeks = calendar.map((e) => {
             return { endDate: new Date(e.endDate), week: e.value };
         });
-        console.log(weeks);
         for (const week of weeks) {
             if (currentDate < week.endDate) {
                 this.weekSelect = week.week;
@@ -195,6 +220,9 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.swipe-container {
+    z-index: 9999;
+}
 h3 {
     margin: 40px 0 0;
 }
