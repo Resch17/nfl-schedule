@@ -37,4 +37,26 @@ div {
 h4 {
     font-size: 20px;
 }
+@media screen and (max-width: 700px) {
+   img {
+       width: 50px;
+       height: auto;
+   } 
+   div {
+       display: flex !important;
+       flex-direction: column !important;
+       width: 170px !important;
+   }
+   h4 {
+       margin: 0 !important;
+   }
+   .home div {
+       flex-direction: column-reverse !important;
+   }
+}
+@media screen and (max-width: 400px) {
+    div {
+        width: 110px !important;
+    }
+}
 </style>

@@ -61,6 +61,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import apiService from '../services/apiService';
 import ApiService from '../services/apiService';
 import TeamCard from './TeamCard.vue';
 
@@ -129,7 +130,8 @@ export default defineComponent({
                         weekday: 'long',
                         month: 'long',
                         day: 'numeric',
-                    })} @ ${gameDate.toLocaleTimeString('en-US', {
+                        year: 'numeric'
+                    })} | ${gameDate.toLocaleTimeString('en-US', {
                         timeZone: 'America/Chicago',
                         timeZoneName: 'short',
                     })}`,
@@ -172,15 +174,21 @@ export default defineComponent({
         },
     },
     async created() {
-        let defaultDate = new Date();
-        if (defaultDate > new Date('2021-09-29T06:59Z')) {
-            this.weekSelect = 4;
+        const apiGames: any = await apiService.getAllGames(1);
+        const calendar = apiGames.leagues[0].calendar[1].entries;
+        let currentDate = new Date();
+        const weeks = calendar.map((e) => {
+            return { endDate: new Date(e.endDate), week: e.value };
+        });
+        console.log(weeks);
+        for (const week of weeks) {
+            if (currentDate < week.endDate) {
+                this.weekSelect = week.week;
+                this.getList(week.week);
+                return;
+            }
         }
-        if (defaultDate > new Date('2021-10-06T06:59Z')) {
-            this.weekSelect = 5;
-        }
-         
-        this.getList(this.weekSelect);
+        this.getList(1);
     },
 });
 </script>
@@ -213,9 +221,9 @@ a {
     flex-direction: column;
     align-items: center;
     border-top: 3px solid black;
-    width: 40%;
     margin: 1em auto;
     padding-top: 1em;
+    max-width: 900px;
 }
 .date {
     margin-bottom: 0.5em;
@@ -236,14 +244,26 @@ a {
     margin: 0 0.5em;
     font-size: 20px;
 }
+.winner,
+.loser {
+    border-radius: 7px;
+}
 .winner {
-    border: 2px solid green;
+    background-color: #93c47d;
 }
 .loser {
-    border: 2px solid red;
+    background-color: #e06666;
 }
 .print {
-  margin-bottom: 0.5em;
-  padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.5em;
+}
+main {
+    width: 100%;
+}
+@media screen and (max-width: 700px) {
+    .at {
+        font-size: 12px;
+    }
 }
 </style>
