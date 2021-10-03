@@ -152,6 +152,7 @@ export default defineComponent({
                 const gameDate = new Date(e.date);
                 const gameObj = {
                     id: e.id,
+                    dateObj: gameDate,
                     date: `${gameDate.toLocaleString('en-US', {
                         weekday: 'long',
                         month: 'long',
@@ -186,7 +187,12 @@ export default defineComponent({
                 }
                 return gameObj;
             });
-            this.games = transformedGames;
+            this.games = transformedGames.sort((a, b) => {
+                let c = a.dateObj.getTime();
+                let d = b.dateObj.getTime();
+                return c > d ? 1: -1;
+            });
+            console.log(transformedGames)
             this.week = apiData.week.number;
         },
         async refreshList(selectedWeek: number) {
