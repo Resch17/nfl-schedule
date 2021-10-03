@@ -50,7 +50,19 @@
                                 :logosCheck="logosCheck"
                             ></team-card>
                         </div>
-                        <div class="at">{{ ' @ ' }}</div>
+                        <div class="mid" style="margin: 0 3px">
+                            <div class="at" style="margin: 5px 0">
+                                {{ ' @ ' }}
+                            </div>
+                            <div class="period">
+                                {{
+                                    game.quarter > 0 && game.clock !== 'Final'
+                                        ? `Q${game.quarter}`
+                                        : ''
+                                }}
+                            </div>
+                            <div class="clock">{{ game.clock }}</div>
+                        </div>
                         <div class="home team" :class="teamStyle(game, 'home')">
                             <team-card
                                 :game="game"
@@ -148,10 +160,46 @@ export default defineComponent({
         },
         async getList(selectedWeek) {
             const apiData: any = await ApiService.getAllGames(selectedWeek);
+            console.log(apiData);
             const transformedGames = apiData.events.map((e) => {
                 const gameDate = new Date(e.date);
+                const homeCompetitor = e.competitions[0].competitors.find(
+                    (c: { homeAway: string }) => c.homeAway === 'home'
+                );
+                const awayCompetitor = e.competitions[0].competitors.find(
+                    (c: { homeAway: string }) => c.homeAway === 'away'
+                );
+                let homeScore = 0;
+                let awayScore = 0;
+
+                let clock;
+                if (e.competitions[0].status.type.completed) {
+                    clock = 'Final';
+                } else if (e.competitions[0].status.type.id === '1') {
+                    clock = '';
+                } else {
+                    clock = e.competitions[0].status.displayClock;
+                }
+
+                if (homeCompetitor.linescores) {
+                    homeCompetitor.linescores.forEach((ls) => {
+                        homeScore += ls.value;
+                    });
+                }
+
+                if (awayCompetitor.linescores) {
+                    awayCompetitor.linescores.forEach((ls) => {
+                        awayScore += ls.value;
+                    });
+                }
+
                 const gameObj = {
                     id: e.id,
+                    clock,
+                    quarter:
+                        e.competitions[0].status.type.id !== '1'
+                            ? e.competitions[0].status.period
+                            : '',
                     dateObj: gameDate,
                     date: `${gameDate.toLocaleString('en-US', {
                         weekday: 'long',
@@ -163,12 +211,10 @@ export default defineComponent({
                         timeZoneName: 'short',
                     })}`,
                     venue: e.competitions[0].venue.fullName,
-                    homeTeam: e.competitions[0].competitors.find(
-                        (c: { homeAway: string }) => c.homeAway === 'home'
-                    ).team,
-                    awayTeam: e.competitions[0].competitors.find(
-                        (c: { homeAway: string }) => c.homeAway === 'away'
-                    ).team,
+                    homeTeam: homeCompetitor.team,
+                    homeScore,
+                    awayScore,
+                    awayTeam: awayCompetitor.team,
                     completed: false,
                 };
                 if (e.status.type.completed) {
@@ -190,9 +236,8 @@ export default defineComponent({
             this.games = transformedGames.sort((a, b) => {
                 let c = a.dateObj.getTime();
                 let d = b.dateObj.getTime();
-                return c > d ? 1: -1;
+                return c > d ? 1 : -1;
             });
-            console.log(transformedGames)
             this.week = apiData.week.number;
         },
         async refreshList(selectedWeek: number) {
