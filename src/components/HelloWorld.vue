@@ -20,6 +20,13 @@
             id="showPrint"
             v-model="showPrint"
         />
+        <label for="showSheet">Show sheet</label>
+        <input
+            type="checkbox"
+            name="showSheet"
+            id="showSheet"
+            v-model="showSheet"
+        />
         <div class="hello">
             <label for="logosCheck">Logos on/off</label>
             <input
@@ -28,6 +35,11 @@
                 id="logosCheck"
                 v-model="logosCheck"
             />
+            <div class="sheet-container" v-if="showSheet">
+                <iframe
+                    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vR7LSYcoIEbdNk4pi1wKO-ZZKx8Jk67VL_p1vaWCblrZigVjnxVilUiCKF18_pkglXxV9X59B5UokIV/pubhtml?widget=true&amp;headers=false"
+                ></iframe>
+            </div>
             <div class="week-container">
                 <i
                     class="fas fa-arrow-alt-circle-left fa-2x"
@@ -97,6 +109,7 @@ export default defineComponent({
             weekSelect: 4,
             logosCheck: true,
             showPrint: false,
+            showSheet: true,
             touchStart: 0,
         };
     },
@@ -123,7 +136,7 @@ export default defineComponent({
         changeWeek(upOrDown: string) {
             switch (upOrDown) {
                 case 'up':
-                    if (this.weekSelect <= 16) {
+                    if (this.weekSelect <= 17) {
                         this.weekSelect++;
                         this.refreshList(this.weekSelect);
                     }
@@ -243,7 +256,7 @@ export default defineComponent({
         async refreshList(selectedWeek: number) {
             if (
                 selectedWeek >= 1 &&
-                selectedWeek < 18 &&
+                selectedWeek < 19 &&
                 selectedWeek !== this.week
             ) {
                 this.getList(selectedWeek);
@@ -271,6 +284,12 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+iframe {
+    height: 300px;
+    width: 700px;
+    resize: both;
+    overflow: auto;
+}
 .swipe-container {
     z-index: 9999;
 }
